@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Kerja Tim - JAC Hiba Bandara</title>
+<meta name="theme-color" content="#1e3a8a">
+<style>
+body{font-family:sans-serif;background:#f0f4ff;margin:0;padding:10px}
+.topbar{display:flex;align-items:center;gap:10px;max-width:900px;margin:0 auto 10px}
+.top-title{font-weight:bold;color:#1e3a8a;font-size:15px}
+.card{background:#fff;border-radius:16px;padding:14px;max-width:900px;margin:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h2{text-align:center;color:#1e3a8a;margin:0 0 4px;font-size:22px}
+p.sub{text-align:center;color:#666;font-size:13px;margin:0 0 12px}
+label{font-size:13px;font-weight:bold;display:block;margin-top:10px}
+input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:5px;box-sizing:border-box;font-size:15px}
+button{width:100%;padding:12px;border:none;border-radius:12px;background:#1e3a8a;color:#fff;font-weight:bold;font-size:15px;margin-top:14px}
+.btn-green{background:#16a34a}.btn-yellow{background:#f59e0b;color:#111}.btn-gray{background:#6b7280}.btn-wa{background:#25D366}
+.hint{font-size:11px;color:#888;margin-top:4px;text-align:center}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;background:#1e3a8a;color:#fff;font-size:11px;font-weight:bold}
+.nav-minggu{display:flex;gap:6px;align-items:center;margin-top:10px}
+.nav-minggu button{width:44px;padding:10px 0;margin:0;font-size:18px}
+.nav-minggu .tgl{flex:1;text-align:center;background:#f1f5f9;border-radius:10px;padding:10px;font-weight:bold;font-size:13px}
+.wrap-tabel{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+th,td{border:1px solid #999;padding:6px 4px;text-align:center}
+th{background:#1e3a8a;color:#fff;font-size:12px}
+th.hari-libur{background:#6b7280}
+td.nama{text-align:left;font-weight:bold;white-space:nowrap;background:#f8fafc;padding-left:8px;min-width:130px}
+select.shift{width:100%;padding:8px 2px;border:1px solid #ccc;border-radius:8px;font-size:12px;font-weight:900;text-align:center;margin:0;cursor:pointer}
+select.shift.S1{background:#dbeafe;color:#1e3a8a}
+select.shift.S2{background:#dcfce7;color:#166534}
+select.shift.L{background:#fee2e2;color:#991b1b}
+select.shift.OFF{background:#f1f5f9;color:#888}
+.total-box{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.total-box div{flex:1;min-width:100px;text-align:center;padding:10px;border-radius:10px;font-weight:bold;font-size:12px}
+.t-s1{background:#dbeafe;color:#1e3a8a}.t-s2{background:#dcfce7;color:#166534}.t-libur{background:#fee2e2;color:#991b1b}.t-all{background:#1e3a8a;color:#fff}
+.rekap-hari{margin-top:14px}
+.rekap-hari h3{margin:6px 0;text-align:center;font-size:15px}
+.hari-card{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-top:8px;background:#f8fafc}
+.hari-card b{font-size:13px}
+.hari-card div{font-size:12px;line-height:1.6;margin-top:4px}
+.preview-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:14px;white-space:pre-wrap;font-family:monospace;font-size:12px;line-height:1.5;max-height:260px;overflow-y:auto;margin-top:12px}
+.status-online{text-align:center;font-size:11px;font-weight:bold;padding:6px;border-radius:20px;margin:0 0 8px;background:#dcfce7;color:#166534}
+.status-offline{text-align:center;font-size:11px;font-weight:bold;padding:6px;border-radius:20px;margin:0 0 8px;background:#fee2e2;color:#991b1b}
+.legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font-size:11px;font-weight:bold;margin-top:10px}
+.legend span{padding:5px 10px;border-radius:20px}
+.l-s1{background:#dbeafe;color:#1e3a8a}.l-s2{background:#dcfce7;color:#166534}.l-lib{background:#fee2e2;color:#991b1b}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="top-title">📅 Jadwal Kerja Tim<br><span style="font-size:11px;color:#666;font-weight:normal">JAC - Hiba Bandara</span></div></div>
+<div class="card">
+<div id="statusSync" class="status-offline">● MENGHUBUNGKAN...</div>
+<h2>📅 Jadwal Kerja Tim</h2>
+<p class="sub">JAC - Hiba Bandara &nbsp;<span class="badge">9 ORANG • SHIFT JAC</span></p>
+<label>Pilih Tanggal (Minggu Ini)</label>
+<input type="date" id="tglAcuan" onchange="onTglGanti()">
+<div class="nav-minggu">
+<button onclick="geserMinggu(-1)">‹</button>
+<div class="tgl" id="labelMinggu">-</div>
+<button onclick="geserMinggu(1)">›</button>
+</div>
+<div class="legend"><span class="l-s1">🔵 S1 = 05:20 - 14:50</span><span class="l-s2">🟢 S2 = 15:20 - 00:20</span><span class="l-lib">🔴 LIBUR</span></div>
+<div class="wrap-tabel"><table><thead><tr id="headHari"></tr></thead><tbody id="listJadwal"></tbody></table></div>
+<div class="total-box">
+<div class="t-s1" id="totS1">Shift 1: 0</div>
+<div class="t-s2" id="totS2">Shift 2: 0</div>
+<div class="t-libur" id="totLibur">Libur: 0</div>
+<div class="t-all" id="totAll">Total Isi: 0</div>
+</div>
+<div class="rekap-hari" id="rekapHari"></div>
+<button class="btn-yellow" onclick="salinMingguLalu()">📋 Salin Dari Minggu Lalu</button>
+<button class="btn-gray" onclick="resetMinggu()">↺ Kosongkan Minggu Ini</button>
+<div class="preview-box" id="previewWA" contenteditable="true"></div>
+<p class="hint">Pencet kotaknya buat edit manual teks WA-nya sebelum di-share</p>
+<button class="btn-wa" onclick="shareWA()">📲 Share Jadwal ke WA</button>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+const TIM=["Bagja Eka Aprianto","Ginanjar","Saepul Anwar","Lukman Hakim","Dwi Ayu R.","Abdul Rohman","M.iskandar","Ival Fauzan","Feri Fachri"];
+const HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const BULAN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+let jadwalData={}; let sedangMenerima=false;
+function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function tglMingguIni(){let v=document.getElementById('tglAcuan').value; if(!v) return []; let d=new Date(v+'T00:00:00'); let day=d.getDay(); let senin=new Date(d); senin.setDate(d.getDate()-((day+6)%7)); let arr=[]; for(let i=0;i<7;i++){let x=new Date(senin); x.setDate(senin.getDate()+i); arr.push(toISO(x));} return arr;}
+function labelTgl(iso){let p=iso.split('-'); let d=new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); return HARI[d.getDay()]+' '+Number(p[2])+' '+BULAN[Number(p[1])-1];}
+function labelSingkat(iso){let p=iso.split('-'); let d=new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); return HARI[d.getDay()].slice(0,3)+'<br>'+Number(p[2])+'/'+Number(p[1]);}
+function getShift(tgl,nama){return (jadwalData[tgl]&&jadwalData[tgl][nama])||'OFF';}
+function setShift(tgl,nama,val){if(!jadwalData[tgl]) jadwalData[tgl]={}; jadwalData[tgl][nama]=val; simpanLokal(); fbSet('jadwal/'+tgl+'/'+nama,val); render();}
+function simpanLokal(){try{localStorage.setItem('jac_jadwal_tim',JSON.stringify(jadwalData));}catch(e){}}
+function render(){
+let minggu=tglMingguIni(); if(!minggu.length) return;
+let mulai=minggu[0], selesai=minggu[6];
+document.getElementById('labelMinggu').innerHTML='Minggu: '+labelTgl(mulai)+' s/d '+labelTgl(selesai);
+let head='<th style="text-align:left">Nama / Hari</th>'; minggu.forEach(t=>{head+='<th>'+labelSingkat(t)+'</th>';}); document.getElementById('headHari').innerHTML=head;
+let h=''; let cS1=0,cS2=0,cL=0,cIsi=0;
+TIM.forEach(nama=>{
+h+='<tr><td class="nama">'+nama+'</td>';
+minggu.forEach(t=>{
+let v=getShift(t,nama); if(v==='S1')cS1++; if(v==='S2')cS2++; if(v==='L')cL++; if(v!=='OFF')cIsi++;
+h+='<td><select class="shift '+v+'" onchange="setShift(\''+t+'\',\''+nama.replace(/'/g,"\\'")+'\',this.value)"><option value="OFF" '+(v==='OFF'?'selected':'')+'>-</option><option value="S1" '+(v==='S1'?'selected':'')+'>S1</option><option value="S2" '+(v==='S2'?'selected':'')+'>S2</option><option value="L" '+(v==='L'?'selected':'')+'>LIBUR</option></select></td>';
+}); h+='</tr>';});
+document.getElementById('listJadwal').innerHTML=h;
+document.getElementById('totS1').innerText='Shift 1: '+cS1; document.getElementById('totS2').innerText='Shift 2: '+cS2; document.getElementById('totLibur').innerText='Libur: '+cL; document.getElementById('totAll').innerText='Total Isi: '+cIsi;
+let rh='<h3>📋 Rekap Per Hari - Minggu Ini</h3>';
+minggu.forEach(t=>{
+let s1=TIM.filter(n=>getShift(t,n)==='S1'); let s2=TIM.filter(n=>getShift(t,n)==='S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
+rh+='<div class="hari-card"><b>'+labelTgl(t)+'</b><div>🔵 <b>Shift 1 (05:20 - 14:50):</b> '+(s1.length?s1.join(', '):'-')+'<br>🟢 <b>Shift 2 (15:20 - 00:20):</b> '+(s2.length?s2.join(', '):'-')+'<br>🔴 <b>Libur:</b> '+(lb.length?lb.join(', '):'-')+'</div></div>';
+});
+document.getElementById('rekapHari').innerHTML=rh;
+let teks='*📅 JADWAL KERJA TIM - JAC HIBA BANDARA*\n\n*Minggu: '+labelTgl(mulai)+' s/d '+labelTgl(selesai)+'*\n--------------------------------\n';
+minggu.forEach(t=>{
+let s1=TIM.filter(n=>getShift(t,n)==='S1'); let s2=TIM.filter(n=>getShift(t,n)==='S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
+teks+='\n*'+labelTgl(t)+'*\n🔵 Shift 1 (05:20 - 14:50): '+(s1.length?s1.join(', '):'-')+'\n🟢 Shift 2 (15:20 - 00:20): '+(s2.length?s2.join(', '):'-')+'\n🔴 Libur: '+(lb.length?lb.join(', '):'-')+'\n';
+});
+teks+='\n--------------------------------\nMohon dicek jadwalnya ya Team.\n\n*Terima Kasih*';
+document.getElementById('previewWA').innerText=teks;
+}
+function onTglGanti(){render();}
+function geserMinggu(n){let v=document.getElementById('tglAcuan').value; let d=new Date(v+'T00:00:00'); d.setDate(d.getDate()+(n*7)); document.getElementById('tglAcuan').value=toISO(d); render();}
+function salinMingguLalu(){let minggu=tglMingguIni(); let lalu=minggu.map(t=>{let d=new Date(t+'T00:00:00'); d.setDate(d.getDate()-7); return toISO(d);}); let ada=false; lalu.forEach(t=>{if(jadwalData[t]) ada=true;}); if(!ada){alert('Minggu lalu belum ada jadwal Aa'); return;} if(!confirm('Salin jadwal minggu lalu ke minggu ini? Data minggu ini akan ketimpa.')) return; let up={}; minggu.forEach((t,i)=>{let src=lalu[i]; jadwalData[t]=JSON.parse(JSON.stringify(jadwalData[src]||{})); Object.keys(jadwalData[t]||{}).forEach(n=>{up['jadwal/'+t+'/'+n]=jadwalData[t][n];});}); simpanLokal(); fbUpdate(up); render(); alert('Berhasil disalin dari minggu lalu!');}
+function resetMinggu(){let minggu=tglMingguIni(); if(!confirm('Kosongkan semua jadwal minggu ini?')) return; minggu.forEach(t=>{delete jadwalData[t]; fbHapus('jadwal/'+t);}); simpanLokal(); render();}
+function shareWA(){let isi=document.getElementById('previewWA').innerText; window.open('https://wa.me/?text='+encodeURIComponent(isi),'_blank');}
+let today=new Date().toISOString().slice(0,10); document.getElementById('tglAcuan').value=today;
+try{let c=JSON.parse(localStorage.getItem('jac_jadwal_tim')||'null'); if(c) jadwalData=c;}catch(e){}
+render();
+</script>
+<script>
+const FB_CONFIG={databaseURL:'https://laporan-jac-baru-default-rtdb.asia-southeast1.firebasedatabase.app'};
+firebase.initializeApp(FB_CONFIG); const db=firebase.database(); const rootRef=db.ref('jadwal_tim_v1');
+function setStatusOnline(ok){let el=document.getElementById('statusSync'); if(!el) return; if(ok){el.className='status-online'; el.innerText='● ONLINE - Realtime';}else{el.className='status-offline'; el.innerText='● OFFLINE';}}
+function fbSet(path,val){if(sedangMenerima) return; rootRef.child(path).set(val).catch(e=>{});}
+function fbUpdate(up){if(sedangMenerima) return; rootRef.update(up).catch(e=>{});}
+function fbHapus(path){if(sedangMenerima) return; rootRef.child(path).remove().catch(e=>{});}
+rootRef.on('value',(snap)=>{let v=snap.val()||{}; sedangMenerima=true; let baru={}; Object.keys(v.jadwal||{}).forEach(t=>{baru[t]={}; Object.keys(v.jadwal[t]||{}).forEach(n=>{baru[t][n]=v.jadwal[t][n];});}); jadwalData=baru; simpanLokal(); render(); sedangMenerima=false; setStatusOnline(true);},()=>setStatusOnline(false));
+db.ref('.info/connected').on('value',s=>{setStatusOnline(!!s.val());});
+</script>
+</body>
+</html>
