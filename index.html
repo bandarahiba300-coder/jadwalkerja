@@ -22,11 +22,10 @@ button{width:100%;padding:12px;border:none;border-radius:12px;background:#1e3a8a
 .nav-minggu button{width:44px;padding:10px 0;margin:0;font-size:18px}
 .nav-minggu .tgl{flex:1;text-align:center;background:#f1f5f9;border-radius:10px;padding:10px;font-weight:bold;font-size:13px}
 .wrap-tabel{overflow-x:auto;margin-top:12px}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:780px}
 th,td{border:1px solid #999;padding:6px 4px;text-align:center}
 th{background:#1e3a8a;color:#fff;font-size:12px}
-th.hari-libur{background:#6b7280}
-td.nama{text-align:left;font-weight:bold;white-space:nowrap;background:#f8fafc;padding-left:8px;min-width:130px}
+td.nama{text-align:left;font-weight:bold;white-space:nowrap;background:#f8fafc;padding-left:8px;min-width:135px}
 select.shift{width:100%;padding:8px 2px;border:1px solid #ccc;border-radius:8px;font-size:12px;font-weight:900;text-align:center;margin:0;cursor:pointer}
 select.shift.S1{background:#dbeafe;color:#1e3a8a}
 select.shift.S2{background:#dcfce7;color:#166534}
@@ -39,13 +38,15 @@ select.shift.OFF{background:#f1f5f9;color:#888}
 .rekap-hari h3{margin:6px 0;text-align:center;font-size:15px}
 .hari-card{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-top:8px;background:#f8fafc}
 .hari-card b{font-size:13px}
-.hari-card div{font-size:12px;line-height:1.6;margin-top:4px}
-.preview-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:14px;white-space:pre-wrap;font-family:monospace;font-size:12px;line-height:1.5;max-height:260px;overflow-y:auto;margin-top:12px}
+.hari-card div{font-size:12px;line-height:1.7;margin-top:4px}
+.preview-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:14px;white-space:pre-wrap;font-family:monospace;font-size:12px;line-height:1.5;max-height:280px;overflow-y:auto;margin-top:12px}
 .status-online{text-align:center;font-size:11px;font-weight:bold;padding:6px;border-radius:20px;margin:0 0 8px;background:#dcfce7;color:#166534}
 .status-offline{text-align:center;font-size:11px;font-weight:bold;padding:6px;border-radius:20px;margin:0 0 8px;background:#fee2e2;color:#991b1b}
 .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font-size:11px;font-weight:bold;margin-top:10px}
 .legend span{padding:5px 10px;border-radius:20px}
 .l-s1{background:#dbeafe;color:#1e3a8a}.l-s2{background:#dcfce7;color:#166534}.l-lib{background:#fee2e2;color:#991b1b}
+.keterangan{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px;font-size:12px;line-height:1.6;margin-top:12px}
+.keterangan b{color:#92400e}
 </style>
 </head>
 <body>
@@ -62,6 +63,7 @@ select.shift.OFF{background:#f1f5f9;color:#888}
 <button onclick="geserMinggu(1)">›</button>
 </div>
 <div class="legend"><span class="l-s1">🔵 S1 = 05:20 - 14:50</span><span class="l-s2">🟢 S2 = 15:20 - 00:20</span><span class="l-lib">🔴 LIBUR</span></div>
+<div class="keterangan"><b>Keterangan Kode:</b><br>🔵 <b>Shift 1:</b> B1 • F1 • U1 • S &nbsp; | &nbsp; 🟢 <b>Shift 2:</b> B2 • F2 • U2 • S<br>🔴 <b>LIBUR</b> • <b>S</b> = Standby / Siaga</div>
 <div class="wrap-tabel"><table><thead><tr id="headHari"></tr></thead><tbody id="listJadwal"></tbody></table></div>
 <div class="total-box">
 <div class="t-s1" id="totS1">Shift 1: 0</div>
@@ -82,6 +84,7 @@ select.shift.OFF{background:#f1f5f9;color:#888}
 const TIM=["Bagja Eka Aprianto","Ginanjar","Saepul Anwar","Lukman Hakim","Dwi Ayu R.","Abdul Rohman","M.iskandar","Ival Fauzan","Feri Fachri"];
 const HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
 const BULAN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const OPTS=[["OFF","-"],["S1-B1","S1-B1"],["S1-F1","S1-F1"],["S1-U1","S1-U1"],["S1-S","S1-S"],["S2-B2","S2-B2"],["S2-F2","S2-F2"],["S2-U2","S2-U2"],["S2-S","S2-S"],["L","LIBUR"]];
 let jadwalData={}; let sedangMenerima=false;
 function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function tglMingguIni(){let v=document.getElementById('tglAcuan').value; if(!v) return []; let d=new Date(v+'T00:00:00'); let day=d.getDay(); let senin=new Date(d); senin.setDate(d.getDate()-((day+6)%7)); let arr=[]; for(let i=0;i<7;i++){let x=new Date(senin); x.setDate(senin.getDate()+i); arr.push(toISO(x));} return arr;}
@@ -90,6 +93,8 @@ function labelSingkat(iso){let p=iso.split('-'); let d=new Date(Number(p[0]),Num
 function getShift(tgl,nama){return (jadwalData[tgl]&&jadwalData[tgl][nama])||'OFF';}
 function setShift(tgl,nama,val){if(!jadwalData[tgl]) jadwalData[tgl]={}; jadwalData[tgl][nama]=val; simpanLokal(); fbSet('jadwal/'+tgl+'/'+nama,val); render();}
 function simpanLokal(){try{localStorage.setItem('jac_jadwal_tim',JSON.stringify(jadwalData));}catch(e){}}
+function namaPlusKode(t,nama){let v=getShift(t,nama); if(v==='L'||v==='OFF') return nama; return nama+' ('+v+')';}
+function listPerKode(t,prefix){return TIM.filter(n=>getShift(t,n).startsWith(prefix)).map(n=>namaPlusKode(t,n));}
 function render(){
 let minggu=tglMingguIni(); if(!minggu.length) return;
 let mulai=minggu[0], selesai=minggu[6];
@@ -99,23 +104,25 @@ let h=''; let cS1=0,cS2=0,cL=0,cIsi=0;
 TIM.forEach(nama=>{
 h+='<tr><td class="nama">'+nama+'</td>';
 minggu.forEach(t=>{
-let v=getShift(t,nama); if(v==='S1')cS1++; if(v==='S2')cS2++; if(v==='L')cL++; if(v!=='OFF')cIsi++;
-h+='<td><select class="shift '+v+'" onchange="setShift(\''+t+'\',\''+nama.replace(/'/g,"\\'")+'\',this.value)"><option value="OFF" '+(v==='OFF'?'selected':'')+'>-</option><option value="S1" '+(v==='S1'?'selected':'')+'>S1</option><option value="S2" '+(v==='S2'?'selected':'')+'>S2</option><option value="L" '+(v==='L'?'selected':'')+'>LIBUR</option></select></td>';
+let v=getShift(t,nama); if(v.startsWith('S1'))cS1++; if(v.startsWith('S2'))cS2++; if(v==='L')cL++; if(v!=='OFF')cIsi++;
+let optHtml=''; OPTS.forEach(o=>{ optHtml+='<option value="'+o[0]+'" '+(v===o[0]?'selected':'')+'>'+o[1]+'</option>'; });
+let cls=v.startsWith('S1')?'S1':v.startsWith('S2')?'S2':v;
+h+='<td><select class="shift '+cls+'" onchange="setShift(\''+t+'\',\''+nama.replace(/'/g,"\\'")+'\',this.value)">'+optHtml+'</select></td>';
 }); h+='</tr>';});
 document.getElementById('listJadwal').innerHTML=h;
 document.getElementById('totS1').innerText='Shift 1: '+cS1; document.getElementById('totS2').innerText='Shift 2: '+cS2; document.getElementById('totLibur').innerText='Libur: '+cL; document.getElementById('totAll').innerText='Total Isi: '+cIsi;
 let rh='<h3>📋 Rekap Per Hari - Minggu Ini</h3>';
 minggu.forEach(t=>{
-let s1=TIM.filter(n=>getShift(t,n)==='S1'); let s2=TIM.filter(n=>getShift(t,n)==='S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
+let s1=listPerKode(t,'S1'); let s2=listPerKode(t,'S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
 rh+='<div class="hari-card"><b>'+labelTgl(t)+'</b><div>🔵 <b>Shift 1 (05:20 - 14:50):</b> '+(s1.length?s1.join(', '):'-')+'<br>🟢 <b>Shift 2 (15:20 - 00:20):</b> '+(s2.length?s2.join(', '):'-')+'<br>🔴 <b>Libur:</b> '+(lb.length?lb.join(', '):'-')+'</div></div>';
 });
 document.getElementById('rekapHari').innerHTML=rh;
 let teks='*📅 JADWAL KERJA TIM - JAC HIBA BANDARA*\n\n*Minggu: '+labelTgl(mulai)+' s/d '+labelTgl(selesai)+'*\n--------------------------------\n';
 minggu.forEach(t=>{
-let s1=TIM.filter(n=>getShift(t,n)==='S1'); let s2=TIM.filter(n=>getShift(t,n)==='S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
+let s1=listPerKode(t,'S1'); let s2=listPerKode(t,'S2'); let lb=TIM.filter(n=>getShift(t,n)==='L');
 teks+='\n*'+labelTgl(t)+'*\n🔵 Shift 1 (05:20 - 14:50): '+(s1.length?s1.join(', '):'-')+'\n🟢 Shift 2 (15:20 - 00:20): '+(s2.length?s2.join(', '):'-')+'\n🔴 Libur: '+(lb.length?lb.join(', '):'-')+'\n';
 });
-teks+='\n--------------------------------\nMohon dicek jadwalnya ya Team.\n\n*Terima Kasih*';
+teks+='\n--------------------------------\nKeterangan: B1/B2, F1/F2, U1/U2, S = Standby\nMohon dicek jadwalnya ya Team.\n\n*Terima Kasih*';
 document.getElementById('previewWA').innerText=teks;
 }
 function onTglGanti(){render();}
