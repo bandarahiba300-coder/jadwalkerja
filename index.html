@@ -187,6 +187,7 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 </div>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>  
 <script>
 var PIN_EDIT = "080924";
 var TIM = ["Bagja Eka Aprianto","Ginanjar","Saepul Anwar","Lukman Hakim","Dwi Ayu R","Abdul Rohman","M Iskandar","Ival Fauzan","Feri Fachri"];
@@ -244,32 +245,40 @@ function exportExcel(){
   var bulan = tanggalBulanIni(); if(!bulan.length){ alert('Pilih bulan dulu Aa'); return; }
   var vBulan = document.getElementById('bulanAcuan').value.split('-');
   var namaBulan = BULAN[Number(vBulan[1])-1] + ' ' + vBulan[0];
-  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>td,th{border:1px solid #000;padding:5px;text-align:center;font-size:12px} th{background:#d9d9d9}</style></head><body>';
-  html += '<table><tr><td colspan="' + (bulan.length+1) + '" style="font-size:16px;font-weight:bold;text-align:center;border:none">JADWAL OPERASIONAL DAN HELPER</td></tr>';
-  html += '<tr><td colspan="' + (bulan.length+1) + '" style="font-size:14px;font-weight:bold;text-align:center;border:none">BULAN ' + escExcel(namaBulan.toUpperCase()) + ' - JAC HIBA BANDARA</td></tr><tr><td colspan="' + (bulan.length+1) + '" style="border:none">&nbsp;</td></tr>';
-  html += '<tr><th>Nama / Tanggal</th>';
-  bulan.forEach(function(t){ var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); html += '<th>' + HARI[d.getDay()] + '<br>' + Number(p[2]) + '</th>'; });
-  html += '</tr>';
-  TIM.forEach(function(nama){
-    html += '<tr><td style="text-align:left;font-weight:bold">' + escExcel(nama) + '</td>';
-    bulan.forEach(function(t){ var v = getShift(t,nama); var label = v === 'L' ? 'OFF' : v; html += '<td style="' + warnaExcel(v) + 'font-weight:bold">' + escExcel(label) + '</td>'; });
-    html += '</tr>';
+
+  var data = [];
+  data.push(['JADWAL OPERASIONAL DAN HELPER']);
+  data.push(['BULAN ' + namaBulan.toUpperCase() + ' - JAC HIBA BANDARA']);
+  data.push(['']);
+  var header = ['Nama / Tanggal'];
+  bulan.forEach(function(t){
+    var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+    header.push(HARI[d.getDay()] + ' ' + Number(p[2]));
   });
-  html += '<tr><td colspan="' + (bulan.length+1) + '" style="border:none">&nbsp;</td></tr>';
-  html += '<tr><th colspan="4" style="text-align:left">JATAH OFF / LIBUR - ' + escExcel(namaBulan) + '</th></tr>';
-  html += '<tr><th style="text-align:left">Nama</th><th>Jumlah OFF</th><th>Jumlah IZIN</th><th>Total Libur + Izin</th></tr>';
+  data.push(header);
+
+  TIM.forEach(function(nama){
+    var row = [nama];
+    bulan.forEach(function(t){
+      var v = getShift(t,nama);
+      row.push(v === 'L' ? 'OFF' : v);
+    });
+    data.push(row);
+  });
+
+  data.push(['']);
+  data.push(['JATAH OFF / LIBUR - ' + namaBulan]);
+  data.push(['Nama','Jumlah OFF','Jumlah IZIN','Total Libur + Izin']);
   TIM.forEach(function(nama){
     var off = hitungOff(nama, bulan); var izin = hitungIzin(nama, bulan);
-    html += '<tr><td style="text-align:left">' + escExcel(nama) + '</td><td style="font-weight:bold;color:#ff0000">' + off + '</td><td>' + izin + '</td><td>' + (off+izin) + '</td></tr>';
+    data.push([nama, off, izin, off+izin]);
   });
-  html += '</table></body></html>';
-  var blob = new Blob(['\ufeff' + html], {type: 'application/vnd.ms-excel;charset=utf-8'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'JADWAL_OPERASIONAL_DAN_HELPER_' + namaBulan.toUpperCase().replace(/ /g,'_') + '.xls';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch: 28}];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Jadwal ' + namaBulan);
+  XLSX.writeFile(wb, 'JADWAL_OPERASIONAL_DAN_HELPER_' + namaBulan.toUpperCase().replace(/ /g,'_') + '.xlsx');
 }
 function render(){ var bulan = tanggalBulanIni(); if(!bulan.length) return; var vBulan = document.getElementById('bulanAcuan').value.split('-'); var namaBulan = BULAN[Number(vBulan[1])-1] + ' ' + vBulan[0]; document.getElementById('judulBulan').innerText = 'BULAN ' + namaBulan.toUpperCase(); document.getElementById('labelBulan').innerHTML = 'Bulan: ' + namaBulan + ' - ' + bulan.length + ' Hari'; var h1 = '<th class="nama-sticky"></th>'; var h2 = '<th class="nama-sticky" style="text-align:left">Nama / Tanggal</th>'; bulan.forEach(function(t){ var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); var aktif = (t === rekapTanggal) ? ' tgl-aktif' : ''; h1 += '<th class="' + (d.getDay()===0?'minggu':'') + '">' + HARI[d.getDay()] + '</th>'; h2 += '<th data-tgl="' + t + '" class="tgl-klik' + aktif + '" onclick="bukaRekap(\'' + t + '\')">' + Number(p[2]) + '</th>'; }); document.getElementById('headHari1').innerHTML = h1; document.getElementById('headHari2').innerHTML = h2; var h = ''; var cS1=0, cS2=0, cL=0, cI=0, cIsi=0; TIM.forEach(function(nama){ h += '<tr><td class="nama">' + nama + '</td>'; bulan.forEach(function(t){ var v = getShift(t,nama); if(v.length===2 && v.endsWith('1')) cS1++; if(v.length===2 && v.endsWith('2')) cS2++; if(v === 'OFF' || v === 'L') cL++; if(v === 'IZIN') cI++; if(v !== '') cIsi++; var label = v === 'L' ? 'OFF' : v; h += '<td class="cell"><button class="cell-btn ' + warnaCell(v) + '" onclick="bukaPilih(\'' + t + '\',\'' + nama.replace(/'/g,"\\'") + '\')">' + label + '</button></td>'; }); h += '</tr>'; }); document.getElementById('listJadwal').innerHTML = h; document.getElementById('totS1').innerText = 'Shift 1: ' + cS1; document.getElementById('totS2').innerText = 'Shift 2: ' + cS2; document.getElementById('totIzin').innerText = 'Izin: ' + cI; document.getElementById('totLibur').innerText = 'Libur: ' + cL; document.getElementById('totAll').innerText = 'Total Isi: ' + cIsi;
   document.getElementById('jatahJudul').innerText = '📊 Jatah OFF / Libur - ' + namaBulan;
