@@ -15,7 +15,7 @@ p.sub2{text-align:center;color:#666;font-size:12px;margin:2px 0 8px}
 label{font-size:13px;font-weight:bold;display:block;margin-top:8px}
 input{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:5px;font-size:15px}
 button{width:100%;padding:12px;border:none;border-radius:12px;background:#1e3a8a;color:#fff;font-weight:bold;font-size:14px;margin-top:12px;cursor:pointer}
-.btn-yellow{background:#f59e0b;color:#111}.btn-gray{background:#6b7280}.btn-green{background:#16a34a}.btn-kunci{background:#dc2626}
+.btn-yellow{background:#f59e0b;color:#111}.btn-gray{background:#6b7280}.btn-green{background:#16a34a}.btn-kunci{background:#dc2626}.btn-excel{background:#107c41}.btn-opsi{background:#334155}
 .hint{font-size:11px;color:#888;margin-top:4px;text-align:center}
 .badge{display:inline-block;padding:4px 10px;border-radius:20px;background:#1e3a8a;color:#fff;font-size:11px;font-weight:bold}
 .nav-bulan{display:flex;gap:6px;align-items:center;margin-top:8px}
@@ -30,8 +30,6 @@ button{width:100%;padding:12px;border:none;border-radius:12px;background:#1e3a8a
 .lock-row{display:flex;gap:6px;margin-top:8px}
 .lock-row input{flex:1;margin:0;text-align:center;letter-spacing:3px;font-weight:bold}
 .lock-row button{width:110px;margin:0;padding:10px}
-.legend{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:8px;font-size:11px;font-weight:900}
-.legend span{padding:5px 8px;border-radius:6px;border:1px solid #999}
 .wrap-tabel{overflow-x:auto;margin-top:10px;border:1px solid #999;border-radius:6px;background:#fff}
 table{border-collapse:collapse;font-size:13px;min-width:1250px}
 th,td{border:1px solid #999;padding:0;text-align:center}
@@ -68,7 +66,10 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 .jatah-item .sub{font-size:11px;color:#666;display:block;font-weight:normal}
 .jatah-total{text-align:center;margin-top:10px;font-size:12px;font-weight:bold;background:#fef3c7;padding:8px;border-radius:8px}
 .btn-row{display:flex;gap:6px}.btn-row button{flex:1}
-/* BUBBLE REKAP - SETENGAH BAWAH, GAK NUTUPIN TABEL, GAK BLUR */
+.opsi-box{display:none;margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px}
+.opsi-box.open{display:block}
+.opsi-box p{margin:0 0 4px;text-align:center;font-size:12px;font-weight:bold;color:#475569}
+.opsi-box button{margin-top:8px}
 .bubble-rekap{position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;max-width:1200px;margin:0 auto;background:#fff;border-top:3px solid #1e3a8a;border-radius:18px 18px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.25);max-height:42vh;overflow-y:auto;padding:10px 12px 14px}
 .bubble-rekap.open{display:block;animation:naikBubble .25s ease}
 @keyframes naikBubble{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -104,8 +105,6 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
   .nav-bulan{margin-top:3px}
   .nav-bulan button{padding:4px 0}
   .nav-bulan .tgl{padding:4px;font-size:11px}
-  .legend{margin-top:3px}
-  .legend span{padding:2px 5px;font-size:10px}
   .hint{display:none}
   .wrap-tabel{margin-top:4px;max-height:calc(100vh - 110px);overflow-y:auto}
   table{min-width:1100px}
@@ -143,11 +142,6 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 <div class="tgl" id="labelBulan">-</div>
 <button onclick="geserBulan(1)">›</button>
 </div>
-<div class="legend">
-<span class="c-B1">B1</span><span class="c-F1">F1</span><span class="c-U1">U1</span><span class="c-S1">S1</span>
-<span class="c-B2">B2</span><span class="c-F2">F2</span><span class="c-U2">U2</span><span class="c-S2">S2</span>
-<span class="c-IZIN">IZIN</span><span class="c-OFF">OFF = LIBUR</span><span class="c-EMPTY">KOSONG = BELUM ISI</span>
-</div>
 <p class="hint">Pencet angka tanggal di atas tabel buat liat rekap hari itu. Pencet kotak warna buat edit.</p>
 <div class="wrap-tabel"><table><thead><tr id="headHari1"></tr><tr id="headHari2"></tr></thead><tbody id="listJadwal"></tbody></table></div>
 <div class="total-box">
@@ -163,13 +157,17 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 <div class="jatah-total" id="jatahTotal"></div>
 <p class="hint">Dihitung otomatis dari kotak OFF di bulan ini. Izin tidak dihitung sebagai OFF.</p>
 </div>
+<button class="btn-excel" onclick="exportExcel()">📥 Download Laporan Excel (.xls) - Bulan Ini</button>
+<button class="btn-opsi" onclick="toggleOpsi()" id="btnOpsi">⚙️ Menu Opsi ▾</button>
+<div class="opsi-box" id="opsiBox">
+<p>Opsi Tambahan - Hati-hati, ini bisa ubah jadwal</p>
 <div class="btn-row">
 <button class="btn-yellow" onclick="salinBulanLalu()">📋 Salin Bulan Lalu</button>
 <button class="btn-gray" onclick="resetBulan()">↺ Kosongkan Bulan Ini</button>
 </div>
 <button class="btn-green" onclick="pulihkanBackup()">♻️ Pulihkan Data Terakhir (Kalau Hilang)</button>
 </div>
-
+</div>
 <div class="bubble-rekap" id="bubbleRekap">
 <div class="bubble-handle"></div>
 <h3 id="bubbleJudul">Rekap Harian</h3>
@@ -180,7 +178,6 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 <div class="bubble-row"><b>Libur / OFF - <span id="bubbleLiburCount">0 Orang</span></b><br><span id="bubbleLiburList">-</span></div>
 <button class="btn-tutup-bubble" onclick="tutupRekap()">Tutup Rekap</button>
 </div>
-
 <div class="modal-bg" id="modalBg" onclick="tutupPilih()"></div>
 <div class="modal" id="modalPilih">
 <h3 id="modalNama">Pilih Jadwal</h3>
@@ -205,6 +202,7 @@ function cekEdit(){ if(!bisaEdit){ alert('Terkunci Aa, masukkan PIN dulu buat ed
 function bukaKunci(){ var el = document.getElementById('inputPin'); var v = el.value.trim(); if(v === PIN_EDIT){ bisaEdit = true; try { sessionStorage.setItem('jac_jadwal_edit','1'); } catch(e) {} el.value = ''; updateLockUI(); render(); alert('Berhasil dibuka, sekarang bisa edit Aa'); } else { alert('PIN salah!'); } }
 function kunciLagi(){ bisaEdit = false; try { sessionStorage.removeItem('jac_jadwal_edit'); } catch(e) {} updateLockUI(); render(); }
 function updateLockUI(){ var box = document.getElementById('lockBox'); var t = document.getElementById('lockTitle'); var h = document.getElementById('lockHint'); var row = document.getElementById('lockRow'); var btn = document.getElementById('btnKunciUlang'); if(bisaEdit){ box.className = 'lock-box ok'; t.innerText = 'Mode Edit Terbuka - Bisa Edit'; h.innerText = 'Pencet kotaknya buat ganti jadwal.'; row.style.display = 'none'; btn.style.display = 'block'; } else { box.className = 'lock-box'; t.innerText = 'Jadwal Terkunci - Mode Lihat Saja'; h.innerText = 'Hanya yang punya PIN yang bisa edit jadwal'; row.style.display = 'flex'; btn.style.display = 'none'; } }
+function toggleOpsi(){ var box = document.getElementById('opsiBox'); var btn = document.getElementById('btnOpsi'); var buka = !box.classList.contains('open'); box.classList.toggle('open', buka); btn.innerText = buka ? '⚙️ Menu Opsi ▴' : '⚙️ Menu Opsi ▾'; }
 function toISO(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function tanggalBulanIni(){ var v = document.getElementById('bulanAcuan').value; if(!v) return []; var p = v.split('-'); var y = Number(p[0]), m = Number(p[1])-1; var jml = new Date(y, m+1, 0).getDate(); var arr = []; for(var d=1; d<=jml; d++){ arr.push(toISO(new Date(y,m,d))); } return arr; }
 function labelTgl(iso){ var p = iso.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); return HARI[d.getDay()] + ' ' + Number(p[2]) + ' ' + BULAN[Number(p[1])-1]; }
@@ -220,47 +218,59 @@ function setStatusSyncing(){ var el = document.getElementById('statusSync'); if(
 function setStatusOffline(){ if(jumlahMenyimpan > 0) return; var el = document.getElementById('statusSync'); if(el){ el.className = 'status-offline'; el.innerText = 'OFFLINE - Pakai Data HP Ini - Cek Internet Aa'; } }
 function namaPlusKode(t,nama){ var v = getShift(t,nama); if(v === '' || v === 'L' || v === 'IZIN' || v === 'OFF') return nama; return nama + ' (' + v + ')'; }
 function listPerAkhir(t,akhir){ return TIM.filter(function(n){ var v = getShift(t,n); return v.length === 2 && v.endsWith(akhir); }).map(function(n){ return namaPlusKode(t,n); }); }
-// BUBBLE REKAP - Cuma liat, gak ada edit. Edit tetep di kotak jadwal.
-function bukaRekap(tgl){
-  if(rekapTanggal === tgl){ tutupRekap(); return; }
-  rekapTanggal = tgl;
-  isiBubble(tgl);
-  document.getElementById('bubbleRekap').classList.add('open');
-  renderHeaderAktif();
-}
-function tutupRekap(){
-  rekapTanggal = null;
-  document.getElementById('bubbleRekap').classList.remove('open');
-  renderHeaderAktif();
-}
-function isiBubble(tgl){
-  var s1 = listPerAkhir(tgl,'1');
-  var s2 = listPerAkhir(tgl,'2');
-  var iz = TIM.filter(function(n){ return getShift(tgl,n) === 'IZIN'; });
-  var lb = TIM.filter(function(n){ return getShift(tgl,n) === 'OFF' || getShift(tgl,n) === 'L'; });
-  var p = tgl.split('-');
-  document.getElementById('bubbleJudul').innerText = 'Rekap Harian';
-  document.getElementById('bubbleSub').innerText = labelTgl(tgl) + ' ' + p[0];
-  document.getElementById('bubbleS1Count').innerText = s1.length + ' Orang';
-  document.getElementById('bubbleS1List').innerText = s1.length ? s1.join(', ') : '-';
-  document.getElementById('bubbleS2Count').innerText = s2.length + ' Orang';
-  document.getElementById('bubbleS2List').innerText = s2.length ? s2.join(', ') : '-';
-  document.getElementById('bubbleIzinCount').innerText = iz.length + ' Orang';
-  document.getElementById('bubbleIzinList').innerText = iz.length ? iz.join(', ') : '-';
-  document.getElementById('bubbleLiburCount').innerText = lb.length + ' Orang';
-  document.getElementById('bubbleLiburList').innerText = lb.length ? lb.join(', ') : '-';
-}
-function renderHeaderAktif(){
-  var ths = document.querySelectorAll('th.tgl-klik');
-  ths.forEach(function(th){
-    if(th.getAttribute('data-tgl') === rekapTanggal) th.classList.add('tgl-aktif');
-    else th.classList.remove('tgl-aktif');
-  });
-}
+function bukaRekap(tgl){ if(rekapTanggal === tgl){ tutupRekap(); return; } rekapTanggal = tgl; isiBubble(tgl); document.getElementById('bubbleRekap').classList.add('open'); renderHeaderAktif(); }
+function tutupRekap(){ rekapTanggal = null; document.getElementById('bubbleRekap').classList.remove('open'); renderHeaderAktif(); }
+function isiBubble(tgl){ var s1 = listPerAkhir(tgl,'1'); var s2 = listPerAkhir(tgl,'2'); var iz = TIM.filter(function(n){ return getShift(tgl,n) === 'IZIN'; }); var lb = TIM.filter(function(n){ return getShift(tgl,n) === 'OFF' || getShift(tgl,n) === 'L'; }); var p = tgl.split('-'); document.getElementById('bubbleJudul').innerText = 'Rekap Harian'; document.getElementById('bubbleSub').innerText = labelTgl(tgl) + ' ' + p[0]; document.getElementById('bubbleS1Count').innerText = s1.length + ' Orang'; document.getElementById('bubbleS1List').innerText = s1.length ? s1.join(', ') : '-'; document.getElementById('bubbleS2Count').innerText = s2.length + ' Orang'; document.getElementById('bubbleS2List').innerText = s2.length ? s2.join(', ') : '-'; document.getElementById('bubbleIzinCount').innerText = iz.length + ' Orang'; document.getElementById('bubbleIzinList').innerText = iz.length ? iz.join(', ') : '-'; document.getElementById('bubbleLiburCount').innerText = lb.length + ' Orang'; document.getElementById('bubbleLiburList').innerText = lb.length ? lb.join(', ') : '-'; }
+function renderHeaderAktif(){ var ths = document.querySelectorAll('th.tgl-klik'); ths.forEach(function(th){ if(th.getAttribute('data-tgl') === rekapTanggal) th.classList.add('tgl-aktif'); else th.classList.remove('tgl-aktif'); }); }
 function warnaCell(v){ if(v === 'OFF' || v === 'L') return 'c-OFF'; if(v === 'IZIN') return 'c-IZIN'; if(['B1','B2','F1','F2','U1','U2','S1','S2'].indexOf(v) !== -1) return 'c-' + v; return 'c-EMPTY'; }
 function bukaPilih(tgl,nama){ if(!cekEdit()) return; pilihTgl = tgl; pilihNama = nama; document.getElementById('modalNama').innerText = nama; document.getElementById('modalTgl').innerText = labelTgl(tgl); var g = ''; OPTS.forEach(function(o){ var cls = 'c-EMPTY'; if(o[0] === 'OFF' || o[0] === 'L') cls = 'c-OFF'; else if(o[0] === 'IZIN') cls = 'c-IZIN'; else if(o[0] === '') cls = 'c-EMPTY'; else cls = 'c-' + o[0]; var labelBtn = o[0] === '' ? 'KOSONG' : o[0]; g += '<button class="' + cls + '" onclick="pilihKode(\'' + o[0] + '\')">' + labelBtn + '<small>' + o[1] + '</small></button>'; }); document.getElementById('gridPilih').innerHTML = g; document.getElementById('modalPilih').classList.add('open'); document.getElementById('modalBg').classList.add('open'); }
 function tutupPilih(){ document.getElementById('modalPilih').classList.remove('open'); document.getElementById('modalBg').classList.remove('open'); }
 function pilihKode(val){ var t = pilihTgl, n = pilihNama; tutupPilih(); if(t && n) setShift(t,n,val); }
+function escExcel(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function warnaExcel(v){
+  if(v === 'OFF' || v === 'L') return 'background:#ff0000;color:#ffffff;';
+  if(v === 'IZIN') return 'background:#bdd7ee;color:#000000;';
+  if(v === 'B1') return 'background:#fbe4d5;color:#000000;';
+  if(v === 'B2') return 'background:#375623;color:#ffffff;';
+  if(v === 'F1') return 'background:#ffc000;color:#000000;';
+  if(v === 'F2') return 'background:#00b050;color:#000000;';
+  if(v === 'U1') return 'background:#ffff00;color:#000000;';
+  if(v === 'U2') return 'background:#a9d08e;color:#000000;';
+  if(v === 'S1') return 'background:#ffd966;color:#000000;';
+  if(v === 'S2') return 'background:#548235;color:#ffffff;';
+  return 'background:#ffffff;color:#000000;';
+}
+function exportExcel(){
+  var bulan = tanggalBulanIni(); if(!bulan.length){ alert('Pilih bulan dulu Aa'); return; }
+  var vBulan = document.getElementById('bulanAcuan').value.split('-');
+  var namaBulan = BULAN[Number(vBulan[1])-1] + ' ' + vBulan[0];
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>td,th{border:1px solid #000;padding:5px;text-align:center;font-size:12px} th{background:#d9d9d9}</style></head><body>';
+  html += '<table><tr><td colspan="' + (bulan.length+1) + '" style="font-size:16px;font-weight:bold;text-align:center;border:none">JADWAL OPERASIONAL DAN HELPER</td></tr>';
+  html += '<tr><td colspan="' + (bulan.length+1) + '" style="font-size:14px;font-weight:bold;text-align:center;border:none">BULAN ' + escExcel(namaBulan.toUpperCase()) + ' - JAC HIBA BANDARA</td></tr><tr><td colspan="' + (bulan.length+1) + '" style="border:none">&nbsp;</td></tr>';
+  html += '<tr><th>Nama / Tanggal</th>';
+  bulan.forEach(function(t){ var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); html += '<th>' + HARI[d.getDay()] + '<br>' + Number(p[2]) + '</th>'; });
+  html += '</tr>';
+  TIM.forEach(function(nama){
+    html += '<tr><td style="text-align:left;font-weight:bold">' + escExcel(nama) + '</td>';
+    bulan.forEach(function(t){ var v = getShift(t,nama); var label = v === 'L' ? 'OFF' : v; html += '<td style="' + warnaExcel(v) + 'font-weight:bold">' + escExcel(label) + '</td>'; });
+    html += '</tr>';
+  });
+  html += '<tr><td colspan="' + (bulan.length+1) + '" style="border:none">&nbsp;</td></tr>';
+  html += '<tr><th colspan="4" style="text-align:left">JATAH OFF / LIBUR - ' + escExcel(namaBulan) + '</th></tr>';
+  html += '<tr><th style="text-align:left">Nama</th><th>Jumlah OFF</th><th>Jumlah IZIN</th><th>Total Libur + Izin</th></tr>';
+  TIM.forEach(function(nama){
+    var off = hitungOff(nama, bulan); var izin = hitungIzin(nama, bulan);
+    html += '<tr><td style="text-align:left">' + escExcel(nama) + '</td><td style="font-weight:bold;color:#ff0000">' + off + '</td><td>' + izin + '</td><td>' + (off+izin) + '</td></tr>';
+  });
+  html += '</table></body></html>';
+  var blob = new Blob(['\ufeff' + html], {type: 'application/vnd.ms-excel;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'JADWAL_OPERASIONAL_DAN_HELPER_' + namaBulan.toUpperCase().replace(/ /g,'_') + '.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
 function render(){ var bulan = tanggalBulanIni(); if(!bulan.length) return; var vBulan = document.getElementById('bulanAcuan').value.split('-'); var namaBulan = BULAN[Number(vBulan[1])-1] + ' ' + vBulan[0]; document.getElementById('judulBulan').innerText = 'BULAN ' + namaBulan.toUpperCase(); document.getElementById('labelBulan').innerHTML = 'Bulan: ' + namaBulan + ' - ' + bulan.length + ' Hari'; var h1 = '<th class="nama-sticky"></th>'; var h2 = '<th class="nama-sticky" style="text-align:left">Nama / Tanggal</th>'; bulan.forEach(function(t){ var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); var aktif = (t === rekapTanggal) ? ' tgl-aktif' : ''; h1 += '<th class="' + (d.getDay()===0?'minggu':'') + '">' + HARI[d.getDay()] + '</th>'; h2 += '<th data-tgl="' + t + '" class="tgl-klik' + aktif + '" onclick="bukaRekap(\'' + t + '\')">' + Number(p[2]) + '</th>'; }); document.getElementById('headHari1').innerHTML = h1; document.getElementById('headHari2').innerHTML = h2; var h = ''; var cS1=0, cS2=0, cL=0, cI=0, cIsi=0; TIM.forEach(function(nama){ h += '<tr><td class="nama">' + nama + '</td>'; bulan.forEach(function(t){ var v = getShift(t,nama); if(v.length===2 && v.endsWith('1')) cS1++; if(v.length===2 && v.endsWith('2')) cS2++; if(v === 'OFF' || v === 'L') cL++; if(v === 'IZIN') cI++; if(v !== '') cIsi++; var label = v === 'L' ? 'OFF' : v; h += '<td class="cell"><button class="cell-btn ' + warnaCell(v) + '" onclick="bukaPilih(\'' + t + '\',\'' + nama.replace(/'/g,"\\'") + '\')">' + label + '</button></td>'; }); h += '</tr>'; }); document.getElementById('listJadwal').innerHTML = h; document.getElementById('totS1').innerText = 'Shift 1: ' + cS1; document.getElementById('totS2').innerText = 'Shift 2: ' + cS2; document.getElementById('totIzin').innerText = 'Izin: ' + cI; document.getElementById('totLibur').innerText = 'Libur: ' + cL; document.getElementById('totAll').innerText = 'Total Isi: ' + cIsi;
   document.getElementById('jatahJudul').innerText = '📊 Jatah OFF / Libur - ' + namaBulan;
   var jatahHtml = ''; var totalOffBulan = 0;
