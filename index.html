@@ -256,12 +256,16 @@ function exportExcel(){
   data.push(['JADWAL OPERASIONAL DAN HELPER']);
   data.push(['BULAN ' + namaBulan.toUpperCase() + ' - JAC HIBA BANDARA']);
   data.push(['']);
-  var header = ['Nama / Tanggal'];
+  var HARI_SINGKAT = ['M','S','Sl','R','K','J','Sb'];
+  var headerHari = ['Hari'];
+  var headerTgl = ['Tanggal'];
   bulan.forEach(function(t){
     var p = t.split('-'); var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
-    header.push(HARI[d.getDay()] + ' ' + Number(p[2]));
+    headerHari.push(HARI_SINGKAT[d.getDay()]);
+    headerTgl.push(Number(p[2]));
   });
-  data.push(header);
+  data.push(headerHari);
+  data.push(headerTgl);
   TIM.forEach(function(nama){
     var row = [nama];
     bulan.forEach(function(t){
