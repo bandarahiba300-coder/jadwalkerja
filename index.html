@@ -129,7 +129,7 @@ td.cell{width:48px;height:42px;min-width:48px;padding:0}
 <span class="c-B2">B2</span><span class="c-F2">F2</span><span class="c-U2">U2</span><span class="c-S2">S2</span>
 <span class="c-IZIN">IZIN</span><span class="c-OFF">OFF = LIBUR</span><span class="c-EMPTY">KOSONG = BELUM ISI</span>
 </div>
-<p class="hint">Putih = belum diisi. Merah OFF = libur. Pencet kotaknya buat ganti. Geser ke kanan buat tanggal 15-31.</p>
+<p class="hint">Putih = belum diisi. Merah OFF = libur. Pencet kotaknya buat ganti.</p>
 <div class="wrap-tabel"><table><thead><tr id="headHari1"></tr><tr id="headHari2"></tr></thead><tbody id="listJadwal"></tbody></table></div>
 <div class="total-box">
 <div class="t-s1" id="totS1">Shift 1: 0</div>
@@ -198,11 +198,30 @@ updateLockUI(); render();
 var FB_CONFIG = {databaseURL:'https://laporan-jac-baru-default-rtdb.asia-southeast1.firebasedatabase.app'};
 firebase.initializeApp(FB_CONFIG); var db = firebase.database(); var rootRef = db.ref('jadwal_tim_v1');
 function setStatusOnline(ok){ var el = document.getElementById('statusSync'); if(!el) return; if(jumlahMenyimpan > 0) return; if(ok){ el.className = 'status-online'; el.innerText = 'ONLINE - Tersimpan'; } else { el.className = 'status-offline'; el.innerText = 'OFFLINE - Cek Internet'; } }
-function fbSet(path,val){ if(sedangMenerima) return; rootRef.child(path).set(val).then(function(){ setStatusSaved(); }).catch(function(){ setStatusSaved(); }); }
-function fbUpdate(up){ if(sedangMenerima) return; rootRef.update(up).then(function(){ setStatusSaved(); }).catch(function(){}); }
-function fbHapus(path){ if(sedangMenerima) return; rootRef.child(path).remove().catch(function(){}); }
+function fbSet(path,val){ rootRef.child(path).set(val).then(function(){ setStatusSaved(); }).catch(function(){ setStatusSaved(); }); }
+function fbUpdate(up){ rootRef.update(up).then(function(){ setStatusSaved(); }).catch(function(){}); }
+function fbHapus(path){ rootRef.child(path).remove().catch(function(){}); }
 function normalisasiRemote(raw){ var baru = {}; var baruTime = {}; Object.keys(raw || {}).forEach(function(t){ baru[t] = {}; baruTime[t] = {}; Object.keys(raw[t] || {}).forEach(function(n){ var cell = raw[t][n]; if(typeof cell === 'string'){ baru[t][n] = cell; baruTime[t][n] = 0; } else if(cell && typeof cell === 'object'){ baru[t][n] = cell.v || ''; baruTime[t][n] = cell.t || 0; } }); }); return {baru: baru, baruTime: baruTime}; }
-rootRef.on('value', function(snap){ var v = snap.val() || {}; var parsed = normalisasiRemote(v.jadwal || {}); Object.keys(parsed.baru).forEach(function(t){ if(!jadwalData[t]) jadwalData[t] = {}; if(!jadwalTime[t]) jadwalTime[t] = {}; Object.keys(parsed.baru[t]).forEach(function(n){ var remoteT = parsed.baruTime[t][n] || 0; var localT = jadwalTime[t][n] || 0; var baruEdit = (Date.now() - terakhirEdit) < 3000; if(remoteT >= localT && !baruEdit){ if(jadwalData[t][n] !== parsed.baru[t][n]){ jadwalData[t][n] = parsed.baru[t][n]; jadwalTime[t][n] = remoteT; } } else if(localT > remoteT){ fbSet('jadwal/' + t + '/' + n, {v: jadwalData[t][n], t: localT}); } }); }); simpanLokal(); render(); setStatusOnline(true); }, function(){ setStatusOnline(false); });
+rootRef.on('value', function(snap){
+  var v = snap.val() || {};
+  var parsed = normalisasiRemote(v.jadwal || {});
+  var baruEdit = (Date.now() - terakhirEdit) < 3000;
+  if(baruEdit) return;
+  var berubah = false;
+  Object.keys(parsed.baru).forEach(function(t){
+    if(!jadwalData[t]) jadwalData[t] = {};
+    if(!jadwalTime[t]) jadwalTime[t] = {};
+    Object.keys(parsed.baru[t]).forEach(function(n){
+      if(jadwalData[t][n] !== parsed.baru[t][n]){
+        jadwalData[t][n] = parsed.baru[t][n];
+        jadwalTime[t][n] = parsed.baruTime[t][n] || 0;
+        berubah = true;
+      }
+    });
+  });
+  if(berubah){ simpanLokal(); render(); }
+  setStatusOnline(true);
+}, function(){ setStatusOnline(false); });
 db.ref('.info/connected').on('value', function(s){ setStatusOnline(!!s.val()); });
 </script>
 </body>
